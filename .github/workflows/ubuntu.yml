@@ -1,0 +1,56 @@
+# ========================================
+# GitHub Actions CI 配置 - Ubuntu
+# ========================================
+# 
+# 这个文件配置 GitHub Actions 自动化构建。
+# 每次推送代码或创建 Pull Request 时，
+# GitHub 会自动编译和测试你的代码。
+# 
+# 这就是持续集成(CI)的概念：
+# - 自动检测代码是否能正常编译
+# - 自动运行测试，确保功能正确
+# - 在合并代码前发现问题
+# ========================================
+
+name: Ubuntu
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  pull_request:
+    branches:
+      - master
+      - main
+
+env:
+  CTEST_OUTPUT_ON_FAILURE: 1
+  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  CPM_SOURCE_CACHE: ${{ github.workspace }}/cpm_modules
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/cache@v3
+        with:
+          path: "**/cpm_modules"
+          key: ${{ github.workflow }}-cpm-modules-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
+
+      - name: configure
+        run: cmake -Stest -Bbuild -DENABLE_TEST_COVERAGE=1 -DCMAKE_BUILD_TYPE=Debug
+
+      - name: build
+        run: cmake --build build -j4
+
+      - name: test
+        run: |
+          cd build
+          ctest --build-config Debug
+
+      - name: collect code coverage
+        run: bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
