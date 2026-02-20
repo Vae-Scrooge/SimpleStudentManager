@@ -1,7 +1,7 @@
 # ========================================
 # CMakeLists.txt - 项目构建配置文件
 # ========================================
-# 
+#
 # CMake 是一个跨平台的构建工具，可以生成各种编译器的项目文件。
 # 这个文件告诉 CMake 如何编译我们的项目。
 #
@@ -30,8 +30,8 @@ project(
 if(PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
   message(
     FATAL_ERROR
-      "请不要在源代码目录中构建项目！"
-      "请创建一个单独的 build 目录，然后在那里运行 cmake。"
+    "请不要在源代码目录中构建项目！"
+    "请创建一个单独的 build 目录，然后在那里运行 cmake。"
   )
 endif()
 
@@ -61,13 +61,17 @@ set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17)
 
 # ---- MSVC 编译器特殊设置 ----
 # 强制使用标准一致的编译模式
-target_compile_options(${PROJECT_NAME} PUBLIC "$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/permissive->")
+target_compile_options(
+  ${PROJECT_NAME}
+  PUBLIC "$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/permissive->"
+)
 
 # ---- 设置头文件包含路径 ----
 # PUBLIC 表示这个路径对使用这个库的其他代码也可见
 target_include_directories(
-  ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-                         $<INSTALL_INTERFACE:include/${PROJECT_NAME}-${PROJECT_VERSION}>
+  ${PROJECT_NAME}
+  PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+         $<INSTALL_INTERFACE:include/${PROJECT_NAME}-${PROJECT_VERSION}>
 )
 
 # ---- 创建可安装的目标 ----
