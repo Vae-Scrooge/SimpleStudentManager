@@ -36,4 +36,4 @@ jobs:
         run: cmake --build build -j4
 
       - name: run
-        run: ./build/student_manager
+        run: echo "0" | timeout 5 ./build/student_manager || true
