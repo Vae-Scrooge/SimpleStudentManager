@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.14...3.22)
 
 project(BuildAll LANGUAGES CXX)
 
-include(../cmake/tools.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../cmake/tools.cmake)
 
 # needed to generate test target
 enable_testing()

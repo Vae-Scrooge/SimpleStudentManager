@@ -17,11 +17,11 @@ option(TEST_INSTALLED_VERSION "Test the version found by find_package" OFF)
 
 # --- Import tools ----
 
-include(../cmake/tools.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../cmake/tools.cmake)
 
 # ---- Dependencies ----
 
-include(../cmake/CPM.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../cmake/CPM.cmake)
 
 CPMAddPackage("gh:doctest/doctest@2.4.9")
 CPMAddPackage("gh:TheLartians/Format.cmake@1.7.3")
