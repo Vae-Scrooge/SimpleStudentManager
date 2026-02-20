@@ -9,10 +9,10 @@
  * 3. 如何使用循环和条件语句构建交互式程序
  */
 
-#include <iostream>   // 用于输入输出
-#include <string>     // 用于字符串处理
-#include <iomanip>    // 用于格式化输出
-#include <limits>     // 用于 numeric_limits
+#include <iomanip>   // 用于格式化输出
+#include <iostream>  // 用于输入输出
+#include <limits>    // 用于 numeric_limits
+#include <string>    // 用于字符串处理
 
 #include "student_manager/student_manager.h"
 
@@ -166,14 +166,13 @@ void show_all_students(const StudentManager& manager) {
   }
 
   std::cout << "\n" << std::left;
-  std::cout << std::setw(15) << "姓名" << std::setw(15) << "学号" << std::setw(10)
-            << "成绩"
+  std::cout << std::setw(15) << "姓名" << std::setw(15) << "学号" << std::setw(10) << "成绩"
             << "\n";
   std::cout << std::string(40, '-') << "\n";
 
   for (const auto& student : students) {
-    std::cout << std::setw(15) << student.get_name() << std::setw(15)
-              << student.get_id() << std::setw(10) << student.get_score() << "\n";
+    std::cout << std::setw(15) << student.get_name() << std::setw(15) << student.get_id()
+              << std::setw(10) << student.get_score() << "\n";
   }
 
   std::cout << "共 " << manager.get_student_count() << " 名学生\n";

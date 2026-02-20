@@ -2,8 +2,7 @@
 # test/CMakeLists.txt - 测试项目构建配置
 # ========================================
 #
-# 这个文件配置单元测试的编译。
-# 我们使用 doctest 作为测试框架，它非常简单易用。
+# 这个文件配置单元测试的编译。 我们使用 doctest 作为测试框架，它非常简单易用。
 # ========================================
 
 cmake_minimum_required(VERSION 3.14...3.22)
@@ -29,21 +28,14 @@ CPMAddPackage("gh:TheLartians/Format.cmake@1.7.3")
 if(TEST_INSTALLED_VERSION)
   find_package(SimpleStudentManager REQUIRED)
 else()
-  CPMAddPackage(
-    NAME SimpleStudentManager
-    SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/..
-  )
+  CPMAddPackage(NAME SimpleStudentManager SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/..)
 endif()
 
 # ---- Create binary ----
 
 file(GLOB sources CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/source/*.cpp)
 add_executable(${PROJECT_NAME} ${sources})
-target_link_libraries(
-  ${PROJECT_NAME}
-  doctest::doctest
-  SimpleStudentManager::SimpleStudentManager
-)
+target_link_libraries(${PROJECT_NAME} doctest::doctest SimpleStudentManager::SimpleStudentManager)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17)
 
 # enable compiler warnings
