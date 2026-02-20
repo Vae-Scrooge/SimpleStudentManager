@@ -23,6 +23,8 @@ cmake_install.cmake
 Makefile
 *.cmake
 !CMakeLists.txt
+# Allow cmake module files
+!cmake/*.cmake
 
 # 编译生成的文件
 *.o
