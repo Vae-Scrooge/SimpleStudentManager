@@ -4,88 +4,98 @@
  */
 
 #include "student_manager/student_manager.h"
-#include <algorithm>  // 用于 std::find_if
+
+#include <algorithm>  // std::find_if, std::max_element, std::min_element
+#include <numeric>    // std::accumulate
 
 namespace student_manager {
 
-// ==================== Student 类实现 ====================
-
-Student::Student(const std::string& student_name,
-                 const std::string& student_id,
-                 double student_score)
-    : name(student_name), id(student_id), score(student_score) {
-    // 构造函数使用成员初始化列表，比在函数体内赋值更高效
-}
-
-std::string Student::get_name() const {
-    return name;
-}
-
-std::string Student::get_id() const {
-    return id;
-}
-
-double Student::get_score() const {
-    return score;
-}
-
-void Student::set_score(double new_score) {
-    score = new_score;
-}
-
 // ==================== StudentManager 类实现 ====================
+// 注意：Student 类的方法已在头文件中内联实现
 
 bool StudentManager::add_student(const Student& student) {
-    // 先检查学号是否已存在，避免重复添加
-    for (const auto& s : students) {
-        if (s.get_id() == student.get_id()) {
-            return false;  // 学号已存在，添加失败
-        }
-    }
-    students.push_back(student);  // 将学生添加到列表末尾
+  if (find_student(student.get_id())) {
+    return false;  // 学号已存在
+  }
+  students_.push_back(student);
+  return true;
+}
+
+bool StudentManager::add_student(Student&& student) {
+  if (find_student(student.get_id())) {
+    return false;  // 学号已存在
+  }
+  students_.push_back(std::move(student));
+  return true;
+}
+
+bool StudentManager::remove_student(std::string_view student_id) {
+  auto it = std::find_if(students_.begin(), students_.end(),
+                         [student_id](const Student& s) {
+                           return s.get_id() == student_id;
+                         });
+  if (it != students_.end()) {
+    students_.erase(it);
     return true;
+  }
+  return false;
 }
 
-bool StudentManager::remove_student(const std::string& student_id) {
-    // 遍历查找要删除的学生
-    for (auto it = students.begin(); it != students.end(); ++it) {
-        if (it->get_id() == student_id) {
-            students.erase(it);  // 找到后删除
-            return true;
-        }
-    }
-    return false;  // 未找到该学号
+std::optional<std::reference_wrapper<Student>> StudentManager::find_student(
+    std::string_view student_id) {
+  auto it = std::find_if(students_.begin(), students_.end(),
+                         [student_id](const Student& s) {
+                           return s.get_id() == student_id;
+                         });
+  if (it != students_.end()) {
+    return std::ref(*it);
+  }
+  return std::nullopt;
 }
 
-Student* StudentManager::find_student(const std::string& student_id) {
-    // 返回指针以便调用者可以修改找到的学生信息
-    for (auto& s : students) {
-        if (s.get_id() == student_id) {
-            return &s;
-        }
-    }
-    return nullptr;  // 未找到返回空指针
+std::optional<std::reference_wrapper<const Student>> StudentManager::find_student(
+    std::string_view student_id) const {
+  auto it = std::find_if(students_.begin(), students_.end(),
+                         [student_id](const Student& s) {
+                           return s.get_id() == student_id;
+                         });
+  if (it != students_.end()) {
+    return std::cref(*it);
+  }
+  return std::nullopt;
 }
 
-double StudentManager::calculate_average_score() const {
-    if (students.empty()) {
-        return 0.0;  // 没有学生时返回 0，避免除零错误
-    }
-    
-    double total = 0.0;
-    for (const auto& s : students) {
-        total += s.get_score();
-    }
-    return total / students.size();
+double StudentManager::calculate_average_score() const noexcept {
+  if (students_.empty()) {
+    return 0.0;
+  }
+  double total = std::accumulate(students_.begin(), students_.end(), 0.0,
+                                 [](double sum, const Student& s) {
+                                   return sum + s.get_score();
+                                 });
+  return total / static_cast<double>(students_.size());
 }
 
-int StudentManager::get_student_count() const {
-    // size() 返回 size_t 类型，强制转换为 int 以匹配返回类型
-    return static_cast<int>(students.size());
+std::optional<double> StudentManager::get_max_score() const noexcept {
+  if (students_.empty()) {
+    return std::nullopt;
+  }
+  auto it = std::max_element(students_.begin(), students_.end(),
+                             [](const Student& a, const Student& b) {
+                               return a.get_score() < b.get_score();
+                             });
+  return it->get_score();
 }
 
-const std::vector<Student>& StudentManager::get_all_students() const {
-    return students;
+std::optional<double> StudentManager::get_min_score() const noexcept {
+  if (students_.empty()) {
+    return std::nullopt;
+  }
+  auto it = std::min_element(students_.begin(), students_.end(),
+                             [](const Student& a, const Student& b) {
+                               return a.get_score() < b.get_score();
+                             });
+  return it->get_score();
 }
 
 }  // namespace student_manager
