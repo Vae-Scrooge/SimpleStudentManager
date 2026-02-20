@@ -1,14 +1,17 @@
-[![Actions Status](https://github.com/Vae-Scrooge/SimpleStudentManager/workflows/Ubuntu/badge.svg)](https://github.com/Vae-Scrooge/SimpleStudentManager/actions)
-[![Actions Status](https://github.com/Vae-Scrooge/SimpleStudentManager/workflows/Windows/badge.svg)](https://github.com/Vae-Scrooge/SimpleStudentManager/actions)
-[![Actions Status](https://github.com/Vae-Scrooge/SimpleStudentManager/workflows/MacOS/badge.svg)](https://github.com/Vae-Scrooge/SimpleStudentManager/actions)
-[![Actions Status](https://github.com/Vae-Scrooge/SimpleStudentManager/workflows/Style/badge.svg)](https://github.com/Vae-Scrooge/SimpleStudentManager/actions)
-[![Actions Status](https://github.com/Vae-Scrooge/SimpleStudentManager/workflows/Standalone/badge.svg)](https://github.com/Vae-Scrooge/SimpleStudentManager/actions)
-[![Actions Status](https://github.com/Vae-Scrooge/SimpleStudentManager/workflows/Install/badge.svg)](https://github.com/Vae-Scrooge/SimpleStudentManager/actions)
+[![Ubuntu Build](https://github.com/Vae-Scrooge/SimpleStudentManager/workflows/Ubuntu/badge.svg)](https://github.com/Vae-Scrooge/SimpleStudentManager/actions/workflows/ubuntu.yml)
+[![Windows Build](https://github.com/Vae-Scrooge/SimpleStudentManager/workflows/Windows/badge.svg)](https://github.com/Vae-Scrooge/SimpleStudentManager/actions/workflows/windows.yml)
+[![macOS Build](https://github.com/Vae-Scrooge/SimpleStudentManager/workflows/MacOS/badge.svg)](https://github.com/Vae-Scrooge/SimpleStudentManager/actions/workflows/macos.yml)
+[![Code Style](https://github.com/Vae-Scrooge/SimpleStudentManager/workflows/Style/badge.svg)](https://github.com/Vae-Scrooge/SimpleStudentManager/actions/workflows/style.yml)
 [![codecov](https://codecov.io/gh/Vae-Scrooge/SimpleStudentManager/branch/main/graph/badge.svg)](https://codecov.io/gh/Vae-Scrooge/SimpleStudentManager)
+[![C++17](https://img.shields.io/badge/C%2B%2B-17-blue.svg)](https://en.cppreference.com/w/cpp/17)
+[![CMake](https://img.shields.io/badge/CMake-3.14+-green.svg)](https://cmake.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 # 简单学生成绩管理系统 📚
 
-一个适合计算机专业大一学生学习的 C++ 项目模板。
+**[English](README_EN.md)** | 简体中文
+
+一个适合计算机专业大一学生学习的现代 C++ 项目模板。
 
 ## 项目简介
 
@@ -115,8 +118,12 @@ ctest --output-on-failure
 SimpleStudentManager/
 ├── CMakeLists.txt           # 主项目构建配置
 ├── README.md                # 项目说明文档（本文件）
+├── README_EN.md             # English README
+├── CHANGELOG.md             # 变更日志
+├── CONTRIBUTING.md          # 贡献指南
 ├── LICENSE                  # 开源许可证（MIT）
 ├── .gitignore               # Git 忽略文件配置
+├── .clang-format            # 代码格式化配置
 │
 ├── include/                 # 头文件目录
 │   └── student_manager/
@@ -135,9 +142,18 @@ SimpleStudentManager/
 │   └── source/
 │       └── student_manager_tests.cpp  # 单元测试
 │
+├── cmake/                   # CMake 模块
+│   ├── CPM.cmake            # 包管理器
+│   └── tools.cmake          # 工具函数
+│
 └── .github/
-    └── workflows/
-        └── build.yml        # CI 配置（自动编译测试）
+    ├── workflows/           # GitHub Actions CI 配置
+    │   ├── ubuntu.yml
+    │   ├── windows.yml
+    │   ├── macos.yml
+    │   └── style.yml
+    ├── ISSUE_TEMPLATE/      # Issue 模板
+    └── pull_request_template.md  # PR 模板
 ```
 
 ## 代码讲解
@@ -148,50 +164,91 @@ SimpleStudentManager/
 
 ```cpp
 class Student {
-private:
-    std::string name;    // 学生姓名
-    std::string id;      // 学号
-    double score;        // 成绩
+ private:
+  std::string name_;   // 学生姓名
+  std::string id_;     // 学号
+  double score_;       // 成绩
 
-public:
-    Student(const std::string& name, const std::string& id, double score);
-    
-    // 获取信息
-    std::string get_name() const;
-    std::string get_id() const;
-    double get_score() const;
-    
-    // 修改成绩
-    void set_score(double new_score);
+ public:
+  Student(std::string name, std::string id, double score = 0.0);
+
+  // 获取信息（返回 string_view 避免拷贝）
+  std::string_view get_name() const noexcept;
+  std::string_view get_id() const noexcept;
+  double get_score() const noexcept;
+
+  // 修改成绩
+  void set_score(double new_score) noexcept;
+
+  // 验证成绩有效性
+  static constexpr bool is_valid_score(double score) noexcept;
 };
 ```
 
 **学习要点：**
 - `private` 和 `public` 是访问修饰符，实现封装
 - `const` 在函数后面表示这个函数不会修改对象状态
-- 成员变量使用下划线前缀或后缀是常见命名风格
+- `noexcept` 表示函数不会抛出异常
+- `[[nodiscard]]` 表示返回值不应被忽略
+- `std::string_view` 是 C++17 的字符串视图，避免不必要的拷贝
+- `static constexpr` 表示编译期常量函数
 
 #### StudentManager 类（学生管理类）
 
 ```cpp
 class StudentManager {
-private:
-    std::vector<Student> students;  // 使用 vector 存储学生
+ private:
+  std::vector<Student> students_;  // 使用 vector 存储学生
 
-public:
-    bool add_student(const Student& student);
-    bool remove_student(const std::string& id);
-    Student* find_student(const std::string& id);
-    double calculate_average_score() const;
-    int get_student_count() const;
-    const std::vector<Student>& get_all_students() const;
+ public:
+  // 容量相关
+  bool empty() const noexcept;
+  int get_student_count() const noexcept;
+
+  // 学生管理操作
+  bool add_student(const Student& student);
+  bool add_student(Student&& student);  // 移动语义版本
+  bool remove_student(std::string_view id);
+
+  // 查找学生（返回 optional 更安全）
+  std::optional<std::reference_wrapper<Student>> find_student(std::string_view id);
+  std::optional<std::reference_wrapper<const Student>> find_student(std::string_view id) const;
+
+  // 统计功能
+  double calculate_average_score() const noexcept;
+  std::optional<double> get_max_score() const noexcept;
+  std::optional<double> get_min_score() const noexcept;
+
+  // 数据访问
+  const std::vector<Student>& get_all_students() const noexcept;
+  void clear() noexcept;
 };
 ```
 
 **学习要点：**
 - `std::vector` 是 C++ 标准库的动态数组
 - 返回 `bool` 表示操作成功或失败
-- 返回指针用于查找（未找到返回 `nullptr`）
+- `std::optional<T>` 表示可能没有值，比返回 `nullptr` 更安全
+- `std::reference_wrapper<T>` 允许在 optional 中存储引用
+- `std::string_view` 作为参数可以接受 `std::string` 或 C 风格字符串
+
+**使用示例：**
+```cpp
+StudentManager manager;
+
+// 添加学生
+manager.add_student(Student("张三", "2023001", 85.5));
+
+// 查找并修改
+if (auto result = manager.find_student("2023001")) {
+    result->get().set_score(90.0);  // 通过 reference_wrapper 修改
+}
+
+// 获取统计信息
+if (auto max = manager.get_max_score()) {
+    std::cout << "最高分: " << *max << std::endl;
+}
+```
 
 ### CMake 构建系统基础
 
@@ -267,18 +324,26 @@ chcp 65001  # 切换到 UTF-8 编码
    - 程序启动时从文件加载数据
 
 2. **添加更多统计功能**
-   - 最高分/最低分
    - 成绩排序
-   - 成绩分布统计
+   - 成绩分布统计（优秀/良好/及格/不及格人数）
 
 3. **改进用户界面**
    - 使用颜色区分不同信息
    - 添加分页显示
    - 支持模糊搜索
 
-4. **添加异常处理**
-   - 输入验证
-   - 错误提示更友好
+4. **性能优化**
+   - 使用 `std::unordered_map` 代替线性查找
+   - 添加批量操作支持
+
+## 贡献
+
+欢迎贡献代码、报告问题或提出建议！
+
+- 📖 查看 [贡献指南](CONTRIBUTING.md) 了解如何参与
+- 📝 查看 [变更日志](CHANGELOG.md) 了解版本历史
+- 🐛 [提交 Issue](https://github.com/Vae-Scrooge/SimpleStudentManager/issues) 报告问题
+- 🔧 [提交 PR](https://github.com/Vae-Scrooge/SimpleStudentManager/pulls) 贡献代码
 
 ## 参考资料
 
