@@ -68,10 +68,10 @@ sudo dnf install gcc-c++ cmake
 
 ```bash
 # 使用 HTTPS
-git clone https://github.com/你的用户名/SimpleStudentManager.git
+git clone https://github.com/Vae-Scrooge/SimpleStudentManager.git
 
 # 或使用 SSH（需要先配置 SSH 密钥）
-git clone git@github.com:你的用户名/SimpleStudentManager.git
+git clone git@github.com:Vae-Scrooge/SimpleStudentManager.git
 
 # 进入项目目录
 cd SimpleStudentManager

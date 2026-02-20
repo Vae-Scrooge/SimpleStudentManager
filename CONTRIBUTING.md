@@ -59,7 +59,7 @@
 
 ```bash
 # 克隆你的 fork
-git clone https://github.com/你的用户名/SimpleStudentManager.git
+git clone https://github.com/Vae-Scrooge/SimpleStudentManager.git
 cd SimpleStudentManager
 
 # 创建构建目录
