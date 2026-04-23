@@ -17,7 +17,7 @@ namespace student_manager {
     if (find_student(student.get_id())) {
       return false;  // 学号已存在
     }
-    students_.push_back(student);
+    students_.emplace_back(student);
     return true;
   }
 
@@ -25,7 +25,7 @@ namespace student_manager {
     if (find_student(student.get_id())) {
       return false;  // 学号已存在
     }
-    students_.push_back(std::move(student));
+    students_.emplace_back(std::move(student));
     return true;
   }
 
